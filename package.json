@@ -1,0 +1,44 @@
+{
+  "name": "@hexlet/codet",
+  "version": "1.0.0",
+  "description": "My webpack project",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "webpack --mode=production --node-env=production",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production --node-env=production",
+    "watch": "webpack --watch",
+    "serve": "webpack serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lugonue/frontend-project-11.git"
+  },
+  "author": "Const",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lugonue/frontend-project-11/issues"
+  },
+  "homepage": "https://github.com/Lugonue/frontend-project-11#readme",
+  "devDependencies": {
+    "@webpack-cli/generators": "^3.0.1",
+    "css-loader": "^6.7.3",
+    "eslint": "^8.36.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "html-webpack-plugin": "^5.5.0",
+    "jest": "^29.5.0",
+    "postcss-loader": "^7.0.2",
+    "sass": "^1.59.3",
+    "sass-loader": "^13.2.0",
+    "style-loader": "^3.3.2",
+    "webpack": "^5.76.1",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1",
+    "workbox-webpack-plugin": "^6.5.4"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.3"
+  }
+}
