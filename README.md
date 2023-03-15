@@ -7,18 +7,5 @@
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e98c242c4802936a50fa/test_coverage)](https://codeclimate.com/github/Lugonue/frontend-project-11/test_coverage)
 
-# 🚀 Welcome to your new awesome project!
-
-This project has been created using **webpack-cli**, you can now run
-
-```
-npm run build
-```
-
-or
-
-```
-yarn build
-```
-
-to bundle your application
+To check application, go to:
+https://frontend-project-11-wine.vercel.app/
