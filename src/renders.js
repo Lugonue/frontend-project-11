@@ -1,9 +1,12 @@
 // рендер
-export default render = {
-  error: (state) => {
-    errorNotification.textContent = watchedState.error;
-    const input = document.querySelector('#url-input');
-    input.classList.add('is-invalid');
+export default {
+  error: (watchedState, qElements) => {
+    if (watchedState.error === '') {
+      qElements.inputField.classList.remove('is-invalid');
+      return;
+    }
+    qElements.errorNotification.innerHTML = watchedState.error;
+    qElements.inputField.classList.add('is-invalid');
   },
 
 };
