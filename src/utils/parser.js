@@ -8,12 +8,10 @@ export default (data) => {
     posts: [],
     feed: {},
   };
-  const title = result.querySelector('title').innerHTML.trim().replace(/[^\W]/gm, '');
-  const description = result.querySelector('description').innerHTML.trim().replace(/[^\W]/gm, '');
   parseData.feed = {
     id: uniqueId(),
-    title,
-    description,
+    title: result.querySelector('title').innerHTML.trim().replace(/[^\W]/gm, ''),
+    description: result.querySelector('description').innerHTML.trim().replace(/[^\W]/gm, ''),
   };
   result.querySelectorAll('item').forEach((e) => {
     const title = e.querySelector('title').innerHTML.trim().replace(/[^\W]/gm, '');
