@@ -3,8 +3,10 @@ import {
   object, string, setLocale as yupSetLocale,
 } from 'yup';
 import i18next from 'i18next';
+import _ from 'lodash';
 import render from './renders.js';
 import { ru, en } from '../assets/languages/index.js';
+import uploadRss from './utils/uploadRss.js';
 
 // Выбор элементов для работы с ДОМ
 const qElements = {
@@ -16,9 +18,10 @@ const qElements = {
 // Старт приложения
 export default () => {
   const state = {
-    input: '',
+    state: '',
     existFeeds: [],
     error: '',
+    feedData: [],
 
   };
 
@@ -28,7 +31,7 @@ export default () => {
         render.error(watchedState, qElements);
         break;
       case 'existFeeds':
-        qElements.errorNotification.textContent = '';
+
         qElements.form.reset();
         break;
       default:
@@ -45,7 +48,7 @@ export default () => {
     },
     debug: true,
   })
-    .then((err, t) => {
+    .then((err) => {
       if (err) console.log('something went wrong loading', err);
       // валидация
       yupSetLocale({
@@ -61,16 +64,16 @@ export default () => {
       const myschema = object({
         website: string().url().required().notOneOf(watchedState.existFeeds),
       });
-      // контроллер
+      // контроллер на форме
       qElements.form.addEventListener('submit', (ev) => {
         ev.preventDefault();
         myschema.validate({ website: qElements.inputField.value })
           .then(({ website }) => {
-            watchedState.error = '';
-            watchedState.existFeeds = website;
+            // функция загрузки потока новостей. Добавляет новый поток к state
+            uploadRss(watchedState, website);
           })
           .catch((e) => {
-            const messages = e.errors.map((err) => instanseOfi18next.t(err.key));
+            const messages = e.errors.map((error) => instanseOfi18next.t(error.key));
             console.log(messages);
             watchedState.error = messages.join('<br>');
           });
