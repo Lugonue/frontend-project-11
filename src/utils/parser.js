@@ -1,27 +1,27 @@
-import { uniqueId } from 'lodash';
+import _ from 'lodash';
 
-const parser = new DOMParser();
+const formatter = (string) => string; // .trim().replace(/[^\w^ ]/gm, '');
 
-export default (data) => {
+export default (data, website) => {
+  try {const parser = new DOMParser();
   const result = parser.parseFromString(data, 'text/xml');
   const parseData = {
+    url: website,
+    id: _.uniqueId(),
+    title: formatter(result.querySelector('title').innerHTML),
+    description: formatter(result.querySelector('description').innerHTML),
+    pubDate: result.querySelector('pubDate').innerHTML.trim(),
     posts: [],
-    feed: {},
-  };
-  parseData.feed = {
-    id: uniqueId(),
-    title: result.querySelector('title').innerHTML.trim().replace(/[^\W]/gm, ''),
-    description: result.querySelector('description').innerHTML.trim().replace(/[^\W]/gm, ''),
   };
   result.querySelectorAll('item').forEach((e) => {
-    const title = e.querySelector('title').innerHTML.trim().replace(/[^\W]/gm, '');
+    const title = formatter(e.querySelector('title').innerHTML);
     const link = e.querySelector('link').innerHTML.trim();
-    const description = e.querySelector('description').innerHTML.trim().replace(/[^\W]/gm, '');
+    const description = formatter(e.querySelector('description').innerHTML);
     const pubDate = e.querySelector('pubDate').innerHTML.trim();
 
     parseData.posts.push({
-      id: uniqueId(),
-      feedId: parseData.feed.id,
+      id: _.uniqueId(),
+      feedId: parseData.id,
       title,
       link,
       description,
@@ -29,4 +29,8 @@ export default (data) => {
     });
   });
   return parseData;
+} catch (e) {
+    console.log('Ошибка в парсере: ', e)
+  }
+ 
 };

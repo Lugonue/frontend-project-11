@@ -1,16 +1,45 @@
 import axios from 'axios';
+import { indexOf } from 'lodash';
 import parser from './parser.js';
 
-export default (watchedState, website) => axios.get(`https://allorigins.hexlet.app/raw?url=${website}`)
-  .then((response) => {
-    if (response.status === 200) {
-      watchedState.error = '';
-      watchedState.existFeeds.push(website);
-      const parseData = parser(response.data);
-      watchedState.feedData.push(parseData);
-      console.log(watchedState.feedData[0].feed);
-    }
-  })
-  .catch((err) => {
-    watchedState.error = err.message;
-  });
+// const uploadRss = (watchedState, feedData, website, errorsLog) => 
+//   .then((response) => {
+    
+//   })
+ 
+
+const reloadRss = (feedData, watchedState, errorsLog) => {
+  const reload = () => {
+    const websites = watchedState.existFeeds;
+    const promises = websites.map((i) => axios.get(`https://allorigins.hexlet.app/raw?url=${i}`));
+    const promiseAll = Promise.all(promises);
+    promiseAll
+      .then((responses) => {
+        responses.forEach((response) => {
+          setTimeout(reload, 5000);
+          feedData.forEach((feed) => {
+            const respUrl = response.config.url.split('=').slice(1).join('=');
+
+            console.log(feed);
+            console.log(feed.url, respUrl);
+            if (feed.url === respUrl) {
+              const parseData = parser(response.data, feed.url);
+              if (Date.parse(feed.pubDate) < Date.parse(parseData.pubDate)) {
+                const index = indexOf(feedData, feed);
+                feedData[index] = parseData;
+                watchedState.state = 'reload';
+              }
+            }
+          });
+        });
+      })
+      .catch(console.log);
+  };
+
+  return reload();
+};
+
+export {
+  uploadRss,
+  reloadRss,
+};

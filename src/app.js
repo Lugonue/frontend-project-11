@@ -3,37 +3,52 @@ import {
   object, string, setLocale as yupSetLocale,
 } from 'yup';
 import i18next from 'i18next';
-import _ from 'lodash';
-import render from './renders.js';
+import render from './renderers.js';
 import { ru, en } from '../assets/languages/index.js';
-import uploadRss from './utils/uploadRss.js';
+import { uploadRss, reloadRss } from './utils/uploadRss.js';
 
 // Выбор элементов для работы с ДОМ
 const qElements = {
   form: document.querySelector('.rss-form'),
   errorNotification: document.querySelector('.feedback'),
   inputField: document.querySelector('#url-input'),
+  posts: document.querySelector('.posts'),
+  feeds: document.querySelector('.feeds'),
+  modal: document.querySelector('#modal'),
 };
 
 // Старт приложения
 export default () => {
   const state = {
-    state: '',
-    existFeeds: [],
-    error: '',
-    feedData: [],
-
+    state: '', // состояние отображения контента
+    existFeeds: [], // массив добавленных потоков
+    error: '', // current error render
   };
-
-  const watchedState = onChange(state, (path) => {
+  const feedData = [];
+  const errorsLog = [];
+  const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'error':
         render.error(watchedState, qElements);
         break;
       case 'existFeeds':
-
+        if (watchedState.existFeeds.length === 1) {
+          reloadRss(feedData, watchedState, errorsLog);
+        }
         qElements.form.reset();
         break;
+      case 'state':
+        if (value === 'DownloadSuccess') {
+          render.success(watchedState, qElements);
+        }
+        if (value === 'ShowContent') {
+          render.posts(feedData, qElements);
+          render.feeds(feedData, qElements);
+        }
+        if (value === 'reload') {
+          render.posts(feedData, qElements);
+          watchedState.state = '';
+        }
       default:
         break;
     }
@@ -53,30 +68,50 @@ export default () => {
       // валидация
       yupSetLocale({
         mixed: {
+          notOneOf: () => ({ key: 'errors.dublicate' }),
           default: 'field_invalid',
         },
         string: {
           url: () => ({ key: 'errors.url' }),
           required: () => ({ key: 'errors.noAddress' }),
-          notOneOf: () => ({ key: 'errors.dublicate' }),
         },
-      });
-      const myschema = object({
-        website: string().url().required().notOneOf(watchedState.existFeeds),
       });
       // контроллер на форме
       qElements.form.addEventListener('submit', (ev) => {
         ev.preventDefault();
-        myschema.validate({ website: qElements.inputField.value })
+        // валидация
+        const myschema = object({
+          website: string().url().required().notOneOf(watchedState.existFeeds),
+        });
+        myschema.validate({ website: qElements.inputField.value.trim() })
           .then(({ website }) => {
             // функция загрузки потока новостей. Добавляет новый поток к state
-            uploadRss(watchedState, website);
+            axios
+              .get(`https://allorigins.hexlet.app/raw?url=${website}`)
+              .then(response => {
+                watchedState.error = '';
+                watchedState.state = 'DownloadSuccess';
+                watchedState.existFeeds.push(website);
+                const parseData = parser(response.data, website);
+                feedData.push(parseData);
+                watchedState.state = 'ShowContent';
+              }) 
+              .catch((err) => {
+                errorsLog.push({ errorMsg: err.message });
+                console.log(err.message);
+                watchedState.error = instanseOfi18next.t('errors.net');
+              });
           })
           .catch((e) => {
             const messages = e.errors.map((error) => instanseOfi18next.t(error.key));
-            console.log(messages);
             watchedState.error = messages.join('<br>');
           });
+      });
+      qElements.posts.addEventListener('click', (ev) => {
+        ev.stopImmediatePropagation();
+        ev.preventDefault();
+        if (ev.target.type !== 'button') return;
+        render.modal(ev.target.parentNode, qElements.modal, feedData);
       });
     });
 };
