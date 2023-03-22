@@ -1,41 +1,31 @@
 import axios from 'axios';
-import { indexOf } from 'lodash';
 import parser from './parser.js';
 
-// const uploadRss = (watchedState, feedData, website, errorsLog) =>
-//   .then((response) => {
-
-//   })
-
-const reloadRss = (feedData, watchedState) => {
-  const reload = () => {
-    const websites = watchedState.existFeeds;
-    const promises = websites.map((i) => axios.get(`https://allorigins.hexlet.app/raw?url=${i}`));
-    const promiseAll = Promise.all(promises);
-    promiseAll
-      .then((responses) => {
-        responses.forEach((response) => {
-          setTimeout(reload, 5000);
-          feedData.forEach((feed) => {
-            const respUrl = response.config.url.split('=').slice(1).join('=');
-            console.log(feed.url, respUrl);
-            if (feed.url === respUrl) {
-              const parseData = parser(response.data, feed.url);
-              if (Date.parse(feed.pubDate) < Date.parse(parseData.pubDate)) {
-                const index = indexOf(feedData, feed);
-                feedData[index] = parseData;
-                watchedState.state = 'reload';
-              }
-            }
-          });
-        });
-      })
-      .catch(console.log);
-  };
-
-  return reload();
-};
-
-export {
-  reloadRss,
+export default (url, state) => {
+  const {
+    feedData, notification, i18next, existFeeds,
+  } = state;
+  const newUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=${url}`
+  axios
+    .get(newUrl)
+    .then((response) => {
+      state.notification.status = null;
+      state.notification.message = i18next('success');
+      return response;
+    })
+    .then((response) => parser(response.data, url))
+    .then((parseData) => {
+      state.feedData = [parseData, ...feedData];
+      state.existFeeds = [url, ...existFeeds];
+      state.status = 'ShowContent';
+    })
+    .catch((e) => {
+      console.log(e);
+      notification.status = 'error';
+      if (e.message === 'parser') {
+        notification.message = i18next('errors.parsing');
+        return;
+      }
+      notification.message = i18next('errors.net');
+    });
 };
