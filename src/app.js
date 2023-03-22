@@ -1,11 +1,13 @@
 import onChange from 'on-change';
+import axios from 'axios';
 import {
   object, string, setLocale as yupSetLocale,
 } from 'yup';
 import i18next from 'i18next';
 import render from './renderers.js';
 import { ru, en } from '../assets/languages/index.js';
-import { uploadRss, reloadRss } from './utils/uploadRss.js';
+import { reloadRss } from './utils/uploadRss.js';
+import parser from './utils/parser.js';
 
 // Выбор элементов для работы с ДОМ
 const qElements = {
@@ -49,6 +51,7 @@ export default () => {
           render.posts(feedData, qElements);
           watchedState.state = '';
         }
+        break;
       default:
         break;
     }
@@ -88,21 +91,22 @@ export default () => {
             // функция загрузки потока новостей. Добавляет новый поток к state
             axios
               .get(`https://allorigins.hexlet.app/raw?url=${website}`)
-              .then(response => {
+              .then((response) => {
                 watchedState.error = '';
                 watchedState.state = 'DownloadSuccess';
-                watchedState.existFeeds.push(website);
                 const parseData = parser(response.data, website);
                 feedData.push(parseData);
+                watchedState.existFeeds.push(website);
                 watchedState.state = 'ShowContent';
-              }) 
-              .catch((err) => {
-                errorsLog.push({ errorMsg: err.message });
-                console.log(err.message);
+              })
+              .catch((errByLoad) => {
+                errorsLog.push({ errorMsg: errByLoad.message });
+                console.log(errByLoad.message);
                 watchedState.error = instanseOfi18next.t('errors.net');
               });
           })
           .catch((e) => {
+            console.log(e);
             const messages = e.errors.map((error) => instanseOfi18next.t(error.key));
             watchedState.error = messages.join('<br>');
           });

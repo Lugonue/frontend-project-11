@@ -3,7 +3,7 @@ import _ from 'lodash';
 const formatter = (string) => string; // .trim().replace(/[^\w^ ]/gm, '');
 
 export default (data, website) => {
-  try {const parser = new DOMParser();
+  const parser = new DOMParser();
   const result = parser.parseFromString(data, 'text/xml');
   const parseData = {
     url: website,
@@ -29,8 +29,4 @@ export default (data, website) => {
     });
   });
   return parseData;
-} catch (e) {
-    console.log('Ошибка в парсере: ', e)
-  }
- 
 };

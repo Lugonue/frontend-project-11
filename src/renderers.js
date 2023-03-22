@@ -32,7 +32,7 @@ export default {
 
     const ul = document.createElement('ul');
     ul.className = 'list-group border-0 rounded-0';
-    feedData.forEach((rss) => {
+    feedData.reverse().forEach((rss) => {
       rss.posts.forEach((post) => {
         const li = document.createElement('li');
         const a = document.createElement('a');
@@ -70,7 +70,7 @@ export default {
 
     const ul = document.createElement('ul');
     ul.className = 'list-group border-0 rounded-0';
-    feedData.forEach((rss) => {
+    feedData.reverse().forEach((rss) => {
       const li = document.createElement('li');
       li.className = 'list-group-item border-0 border-end-0';
       const h3 = document.createElement('h3');
