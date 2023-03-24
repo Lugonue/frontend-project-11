@@ -1,12 +1,9 @@
 import { uniqueId } from 'lodash';
 
-// const formatter = (string) => string; // .trim().replace(/[^\w^ ]/gm, '');
-
 export default (data, url) => {
   try {
-    const parser = new DOMParser();
-    const result = parser.parseFromString(data, 'text/xml');
-    console.log(result)
+    const neWparser = new DOMParser();
+    const result = neWparser.parseFromString(data.contents, 'text/xml');
     const parseData = {
       url,
       id: uniqueId(),
@@ -15,7 +12,7 @@ export default (data, url) => {
       pubDate: result.querySelector('pubDate').textContent.trim(),
       posts: [],
     };
-    
+
     result.querySelectorAll('item').forEach((e) => {
       const title = e.querySelector('title').textContent;
       const link = e.querySelector('link').textContent.trim();
@@ -31,8 +28,7 @@ export default (data, url) => {
       });
     });
     return parseData;
-  } catch (e) {
-    console.log(e.message)
-    throw new Error('parser');
+  } catch {
+    
   }
-};
+}

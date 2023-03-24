@@ -1,39 +1,37 @@
 import onChange from 'on-change';
+import reloadRss from '../utils/reloadRss.js';
 import {
-  errorRender, feedsRander, postsRender, successRender,
+  errorRender, feedsRander, modalWindowRender, postsRender, successRender,
 } from './renderers/index.js';
 
 export default (state, qElements) => {
   const watchedState = onChange(state, (path, value) => {
-    console.log(path)
     switch (path) {
-      case 'notification.message':
+      case 'notification.status':
         if (watchedState.notification.status === 'error') {
           errorRender(watchedState, qElements);
-          break;
+        } else if (watchedState.notification.status === 'parsingError') {
+          errorRender(watchedState, qElements);
+        } else if (watchedState.notification.status === 'networkError') {
+          errorRender(watchedState, qElements);
+        } else if (watchedState.notification.status === 'responseisOK') {
+          successRender(watchedState, qElements);
         }
-        successRender(watchedState, qElements);
+        watchedState.notification.status = '';
         break;
-
       case 'existFeeds':
-      //   if (watchedState.existFeeds.length === 1) {
-      //     reloadRss(feedData, watchedState, errorsLog);
-      //   }
+        if (watchedState.existFeeds.length === 1) {
+          reloadRss(watchedState);
+        }
         qElements.form.reset();
         break;
-      case 'status':
-        if (value === 'DownloadSuccess') {
-
-        }
-        if (value === 'ShowContent') {
-          console.log('???')
-          postsRender(state, qElements);
-          feedsRander(state, qElements);
-        }
-        if (value === 'reload') {
-          postsRender(watchedState, qElements);
-          watchedState.state = '';
-        }
+      case 'feedData':
+        if (watchedState.feedData.length === 0) return;
+        postsRender(watchedState, qElements);
+        feedsRander(watchedState, qElements);
+        break;
+      case 'modal':
+        modalWindowRender(value, qElements, watchedState.feedData);
         break;
       default:
         break;

@@ -1,11 +1,9 @@
-import render from './view/renderers/index.js';
-import reloadRss from './utils/reloadRss.js';
 import watcher from './view/watcher.js';
 import formValidator from './validators/formValidator.js';
 import uploadRss from './utils/uploadRss.js';
 
 export default (state) => { // Старт приложения
-  const { notification, existFeeds, i18next } = state;
+  const { i18nextInstance } = state;
 
   const qElements = { // Выбор элементов для работы с ДОМ
     form: document.querySelector('.rss-form'),
@@ -16,26 +14,26 @@ export default (state) => { // Старт приложения
     modal: document.querySelector('#modal'),
   };
 
-  const watchedState = watcher(state, qElements); // иницилизация view компонента
+  const watchedState = watcher(state, qElements); // инициализация view компонента
 
   qElements.form.addEventListener('submit', (ev) => {
-    console.log(state);
     ev.preventDefault();
     const inputRssUrl = qElements.inputField.value.trim();
-    const formValidation = formValidator(existFeeds); // иницилизация схемы валидатора формы
+    // инициализация схемы валидатора формы
+    const formValidation = formValidator(watchedState.existFeeds);
     formValidation
       .validate({ url: inputRssUrl })
-      .then(() => uploadRss(inputRssUrl, watchedState))// функция загрузки потока новостей. Добавляет новый поток к state
-      .then(() => reloadRss(watchedState))
+      // функция загрузки потока новостей. Добавляет новый поток к state
+      .then(({ url }) => uploadRss(url, watchedState))
       .catch((error) => {
+        watchedState.notification.message = i18nextInstance(error.message.key);
         watchedState.notification.status = 'error';
-        watchedState.notification.message = i18next(error.message.key);
       });
   });
-  // qElements.posts.addEventListener('click', (ev) => {
-  //   ev.stopImmediatePropagation();
-  //   ev.preventDefault();
-  //   if (ev.target.type !== 'button') return;
-  //   render.modal(ev.target.parentNode, qElements, feedData);
-  // });
+  qElements.posts.addEventListener('click', (ev) => {
+    ev.stopImmediatePropagation();
+    ev.preventDefault();
+    if (ev.target.type !== 'button') return;
+    watchedState.modal = ev.target.parentNode;
+  });
 };

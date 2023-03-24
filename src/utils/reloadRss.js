@@ -2,34 +2,45 @@ import axios from 'axios';
 import { indexOf } from 'lodash';
 import parser from './parser.js';
 
-export default (state) => {
-  const { existFeeds } = state;
+export default (watchedState) => {
   const reload = () => {
+    const { existFeeds, feedData } = watchedState;
+    setTimeout(reload, 5000);
     const promises = existFeeds.map((url) => {
       const newUrl = new URL(`https://allorigins.hexlet.app/get?url=${url}`);
       newUrl.searchParams.set('disableCache', true);
-      return axios.get(`https://allorigins.hexlet.app/get?url=${url}`);
+      return axios.get(newUrl);
     });
     const promiseAll = Promise.all(promises);
     promiseAll
       .then((responses) => {
         responses.forEach((response) => {
-          setTimeout(reload, 5000);
           feedData.forEach((feed) => {
-            const respUrl = response.config.url.split('=').slice(1).join('=');
-            console.log(feed.url, respUrl);
+            const respUrl = response.config.url.searchParams.get('url');
             if (feed.url === respUrl) {
-              const parseData = parser(response.data, feed.url);
-              if (Date.parse(feed.pubDate) < Date.parse(parseData.pubDate)) {
+              try {
+                const parsedData = parser(response.data, respUrl);
+              } catch {
+                throw new Error('parser');
+              }
+              // console.log(Date.parse(feed.pubDate), Date.parse(parseData.pubDate))
+              if (Date.parse(feed.pubDate) < Date.parse(parsedData.pubDate)) {
                 const index = indexOf(feedData, feed);
-                feedData[index] = parseData;
-                watchedState.state = 'reload';
+                feedData[index] = parsedData;
               }
             }
           });
         });
       })
-      .catch(console.log);
+      .catch((e) => {
+        if (e.message === 'parser') {
+          watchedState.notification.message = 'Ресурс не содержит валидный RSS, после перезагрузки потока';
+          watchedState.notification.status = 'parsingError';
+          return;
+        }
+        watchedState.notification.message = 'Ошибка сети, во время перезагрузки потока';
+        watchedState.notification.status = 'networkError';
+      });
   };
 
   return reload();

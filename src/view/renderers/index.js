@@ -3,8 +3,6 @@ import postsRender from './postsFieldHandler.js';
 import feedsRander from './feedsFieldRender.js';
 import modalWindowRender from './modalWindowHandler.js';
 
-// рендер
-
 export {
   errorRender,
   successRender,

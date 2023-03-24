@@ -3,7 +3,7 @@ const errorRender = (watchedState, qElements) => {
   if (!errorNotification.classList.contains('text-danger')) {
     errorNotification.classList.add('text-danger');
   }
-  errorNotification.innerHTML = watchedState.notification.message;
+  errorNotification.textContent = watchedState.notification.message;
   inputField.classList.add('is-invalid');
 };
 
@@ -12,7 +12,7 @@ const successRender = (watchedState, qElements) => {
   inputField.classList.remove('is-invalid');
   errorNotification.classList.remove('text-danger');
   errorNotification.classList.add('text-success');
-  errorNotification.innerHTML = watchedState.i18next('success');
+  errorNotification.textContent = watchedState.i18nextInstance('success');
 };
 
 export {

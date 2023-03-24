@@ -1,31 +1,34 @@
 import axios from 'axios';
 import parser from './parser.js';
 
-export default (url, state) => {
+export default (url, watchedState) => {
   const {
-    feedData, notification, i18next, existFeeds,
-  } = state;
-  const newUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=${url}`
-  axios
+    existFeeds, feedData, notification,
+  } = watchedState;
+  const newUrl = new URL(`https://allorigins.hexlet.app/get?url=${url}`);
+  newUrl.searchParams.set('disableCache', true);
+  return axios
     .get(newUrl)
     .then((response) => {
-      state.notification.status = null;
-      state.notification.message = i18next('success');
+      if (response.data.contents.match(/<title>Страница не найдена/)) {
+        throw new Error();
+      }
+      watchedState.notification.status = 'responseisOK';
       return response;
     })
-    .then((response) => parser(response.data, url))
+    .then((response) => parser(response.data, newUrl.searchParams.get('url')))
     .then((parseData) => {
-      state.feedData = [parseData, ...feedData];
-      state.existFeeds = [url, ...existFeeds];
-      state.status = 'ShowContent';
+      watchedState.feedData = [parseData, ...feedData];
+      watchedState.existFeeds = [newUrl.searchParams.get('url'), ...existFeeds];
+      watchedState.status = 'ShowContent';
     })
     .catch((e) => {
-      console.log(e);
-      notification.status = 'error';
       if (e.message === 'parser') {
-        notification.message = i18next('errors.parsing');
+        notification.message = 'Ресурс не содержит валидный RSS';
+        notification.status = 'parsingError';
         return;
       }
-      notification.message = i18next('errors.net');
+      notification.message = 'Ошибка сети';
+      notification.status = 'networkError';
     });
 };

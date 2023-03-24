@@ -1,8 +1,8 @@
 import './styles.scss';
-import app from './app.js';
-import 'bootstrap';
 import i18next from 'i18next';
-import { ru } from '../assets/languages/index.js';
+import 'bootstrap';
+import ru from '../assets/languages/ru.js';
+import app from './app.js';
 
 const instanseOfi18next = i18next.createInstance();
 instanseOfi18next
@@ -11,8 +11,9 @@ instanseOfi18next
     resources: {
       ru,
     },
+    debug: true,
   })
-  .catch((e) => new Error('something went wrong loading'))
+  .catch(() => new Error('something went wrong loading'))
   .then((t) => {
     const state = { // инициализация состояния
       status: '',
@@ -22,8 +23,9 @@ instanseOfi18next
       }, // состояние отображения контента
       existFeeds: [], // массив добавленных потоков
       error: '', // current error render
-      i18next: t,
+      i18nextInstance: t,
       feedData: [],
+      modal: null,
     };
 
     app(state);

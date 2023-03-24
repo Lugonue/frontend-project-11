@@ -14,7 +14,7 @@ export default (whatchedState, qElements) => {
 
   const ul = document.createElement('ul');
   ul.className = 'list-group border-0 rounded-0';
-  feedData.reverse().forEach((rss) => {
+  feedData.forEach((rss) => {
     const li = document.createElement('li');
     li.className = 'list-group-item border-0 border-end-0';
     const h3 = document.createElement('h3');
