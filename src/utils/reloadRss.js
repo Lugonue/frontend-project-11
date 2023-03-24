@@ -18,11 +18,8 @@ export default (watchedState) => {
           feedData.forEach((feed) => {
             const respUrl = response.config.url.searchParams.get('url');
             if (feed.url === respUrl) {
-              try {
-                const parsedData = parser(response.data, respUrl);
-              } catch {
-                throw new Error('parser');
-              }
+              // eslint-disable-next-line no-use-before-define
+              const parsedData = parser(response.data, respUrl);
               // console.log(Date.parse(feed.pubDate), Date.parse(parseData.pubDate))
               if (Date.parse(feed.pubDate) < Date.parse(parsedData.pubDate)) {
                 const index = indexOf(feedData, feed);

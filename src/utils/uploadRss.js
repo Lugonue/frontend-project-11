@@ -16,6 +16,11 @@ export default (url, watchedState) => {
       watchedState.notification.status = 'responseisOK';
       return response;
     })
+    .catch(() => {
+      notification.message = 'Ошибка сети';
+      notification.status = 'networkError';
+      throw new Error('NetworkErr');
+    })
     .then((response) => parser(response.data, newUrl.searchParams.get('url')))
     .then((parseData) => {
       watchedState.feedData = [parseData, ...feedData];
@@ -23,12 +28,9 @@ export default (url, watchedState) => {
       watchedState.status = 'ShowContent';
     })
     .catch((e) => {
-      if (e.message === 'parser') {
+      if (e.message !== 'NetworkErr') {
         notification.message = 'Ресурс не содержит валидный RSS';
         notification.status = 'parsingError';
-        return;
       }
-      notification.message = 'Ошибка сети';
-      notification.status = 'networkError';
     });
 };
