@@ -31,7 +31,7 @@ export default (state) => { // Старт приложения
       });
   });
   qElements.posts.addEventListener('click', (ev) => {
-    ev.stopImmediatePropagation();
+    ev.stopPropagation();
     ev.preventDefault();
     if (ev.target.type !== 'button') return;
     watchedState.modal = ev.target.parentNode;
