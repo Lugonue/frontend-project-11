@@ -12,8 +12,8 @@ To run this project locally, please follow these steps:
 
     1. Clone this repository to your local machine
     2. Navigate to the project directory
-    3. Run npm install to install all the necessary dependencies
-    4. Run npm develop to start the project
+    3. Run make install to install all the necessary dependencies
+    4. Run make build to start the project
 
 To check application, go to:  
 https://frontend-project-11-wine.vercel.app/
