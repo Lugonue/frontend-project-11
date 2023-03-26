@@ -17,15 +17,15 @@ instanseOfi18next
   .then((t) => {
     const state = { // инициализация состояния
       status: '',
-      notification: {
+      notification: { // состояние стрроки уведомления
         status: null,
         message: '',
       }, // состояние отображения контента
       existFeeds: [], // массив добавленных потоков
       error: '', // current error render
-      i18nextInstance: t,
-      feedData: [],
-      modal: null,
+      i18nextInstance: t, // языковой интерфейс
+      feedData: [], // хранилище постов
+      modal: null, // состояние модального окна
     };
 
     app(state);
