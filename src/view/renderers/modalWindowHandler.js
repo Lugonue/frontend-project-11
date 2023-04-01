@@ -10,6 +10,7 @@ export default (element, qElements, feedData) => {
       a.className = 'fw-normal link-secondary';
       modal.querySelector('h5').textContent = post.title;
       modal.querySelector('.modal-body').textContent = post.description;
+      modal.querySelector('a').href = post.link;
     });
   });
 };
